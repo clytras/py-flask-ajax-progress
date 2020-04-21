@@ -1,10 +1,11 @@
 import time
-from flask import Flask, stream_with_context, request, Response
+from flask import Flask, render_template, stream_with_context, request, Response
 app = Flask(__name__, static_url_path='',static_folder='static')
 
 @app.route('/')
 def hello_world():
-    return app.send_static_file('index.html')
+    # return app.send_static_file('index.html')
+    return render_template('compute.html', name="Flask 🎉")
 
 @app.route('/compute-image')
 def compute_image():
