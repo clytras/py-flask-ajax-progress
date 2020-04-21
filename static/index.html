@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
+  <title>Document</title>
+  <style type="text/css">
+    #progress { color: rgb(0, 102, 255); }
+    #time { color: rgb(22, 190, 0); }
+  </style>
+</head>
+<body>
+  <h1>Hello Flask!</h1>
+  <hr>
+  <div>
+    <h3>Progress: <span id="progress"></span></h3>
+    <h3>Time elapsed: <span id="time"></span></h3>
+    <button id="compute">Ajax Compute</button>
+  </div>
+
+  <script>
+    // Compute button
+    const btnEl = document.getElementById('compute');
+
+    // Progress label
+    const progEl = document.getElementById('progress');
+
+    // Time elapsed label
+    const timeEl = document.getElementById('time');
+
+    btnEl.addEventListener('click', function(e) {
+      btnEl.disabled = true;
+      progEl.textContent = '';
+      timeEl.textContent = '';
+
+      // Track the AJAX response buffer length
+      let prevBufferEnd = 0;
+
+      // Save the total (huge_number)
+      let total = 0;
+
+      // Save the time we'vr started
+      const timeStart = new Date;
+
+      const xhr = new XMLHttpRequest();
+
+      xhr.addEventListener('progress', function(e) {
+        // Get the current progress JSON data
+        let currentProgress = e.currentTarget.responseText.substring(prevBufferEnd, e.currentTarget.responseText.length);
+        prevBufferEnd = e.currentTarget.responseText.length;
+
+        // Parse JSON data
+        const respData = JSON.parse(currentProgress);
+
+        if (respData) {
+          // If there is a total, save to the total variable
+          if (respData['total']) {
+            total = respData.total;
+          // If there is a progress, display progress to the client
+          } else if (respData['progress']) {
+            const { progress } = respData;
+            const percent = (progress / total) * 100;
+
+            progEl.textContent = `${respData['progress']} of ${total} (${percent.toFixed(1)}%)`;
+
+            const timeSpan = (new Date) - timeStart;
+
+            timeEl.textContent = `${timeSpan / 1000} s`;
+          // Elese if there is an img_url, we've finished
+          } else if (respData['img_url']) {
+            progEl.textContent = `Done! Displaying image: "${respData['img_url']}"`;
+          }
+        }
+
+        console.log('progress', currentProgress, e.type, e.loaded, e);
+      });
+
+      xhr.addEventListener('loadend', function(e) {
+        console.log('loadend', e.currentTarget.responseText, e.type, e.loaded, e);
+        btnEl.disabled = false;
+        
+      });
+
+      xhr.open("GET", '/compute-image');
+      xhr.send();
+
+    });
+
+  </script>
+</body>
+</html>

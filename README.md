@@ -1,0 +1,1 @@
+# Flask stream AJAX update
