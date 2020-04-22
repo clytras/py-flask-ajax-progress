@@ -24,7 +24,7 @@ def compute_image():
             # Else increment progress by 1 and sleep a bit
             else:
                 progress = progress + 1
-                time.sleep(0.001)
+                time.sleep(0.0005)
         
         # Send the generated image location to the client when we're done
         yield "{\"img_url\": \"/some/generated/image.png\"}\n"
